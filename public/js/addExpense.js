@@ -5,12 +5,13 @@ const addBtn = document.getElementById("addBtn");
 const listOfItems = document.getElementById("listOfItems");
 const tokenData = JSON.parse(localStorage.getItem("token"));
 const rzrpBtn = document.getElementById("rzpBtn");
-
-const { token, email } = tokenData;
+const container =document.getElementById("root");
+const { token, email,premiumUser } = tokenData;
 const authenticatedAxios = axios.create({
   headers: {
     Authorization: `${token}`,
     userId: `${email}`,
+    isPremiumUser:`${premiumUser}`
   },
 });
 
@@ -82,6 +83,7 @@ const deleteData = (expenseId) => {
 };
 
 const getAllExpenses = async () => {
+    isPremiumUser();
   const response = await authenticatedAxios.get(
     `http://localhost:3000/expenses/getAllExpenses`
   );
@@ -89,6 +91,17 @@ const getAllExpenses = async () => {
     createElement(response.data[i]);
   }
 };
+const isPremiumUser=()=>{
+    console.log(tokenData);
+    if(tokenData.premiumUser==true)
+    {
+        const h4 = document.createElement("h4");
+        h4.appendChild(document.createTextNode("You are a premium User"));
+        container.appendChild(h4);
+        rzrpBtn.remove();
+    }
+
+}
 
 rzrpBtn.addEventListener("click", async function (e) {
   e.preventDefault();
@@ -110,7 +123,24 @@ rzrpBtn.addEventListener("click", async function (e) {
           payment_id: response.razorpay_payment_id,
         }
       );
+      rzrpBtn.remove();
+      const h4 = document.createElement("h4");
+      h4.appendChild(document.createTextNode("You are a premium User"));
+      container.appendChild(h4);
+
+      localStorage.setItem(
+        "token",
+        JSON.stringify({
+          name: tokenData.name,
+          token: tokenData.token,
+          premiumUser: true,
+  
+        })
+      );
+      
       alert(`you are a premium user now`);
+      isPremiumUser();
+
     },
   };
   var rzp1 = new Razorpay(options);

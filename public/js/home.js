@@ -22,6 +22,8 @@ loginForm.addEventListener("click", async function (e) {
       JSON.stringify({
         name: isValidUser.data.user.email,
         token: isValidUser.data.token,
+        premiumUser: isValidUser.data.premiumUser,
+
       })
     );
     window.location.href = `http://localhost:3000/user/dashboard`;

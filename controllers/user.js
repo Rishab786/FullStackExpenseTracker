@@ -48,10 +48,10 @@ exports.loginAuthentication = async (req, res, next) => {
         user[0].password
       );
       if (isPasswordValid) {
-        const token = jwt.sign({ userId: user[0].email }, secretKey, {
+        const token = jwt.sign({ userId: user[0].email}, secretKey, {
           expiresIn: "1h",
         });
-        res.status(200).json({ token: token, user: user[0] });
+        res.status(200).json({ token: token, user: user[0],premiumUser:false  });
       } else {
         res.status(401).send("incorrect password");
       }

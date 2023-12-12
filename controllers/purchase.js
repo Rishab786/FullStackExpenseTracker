@@ -38,6 +38,8 @@ exports.updatetransactionstatus = async (request, response, next) => {
         { where: { orderid: order_id } }
       ),
     ]);
+    // request.headers.ispremiumuser=true;
+    
     response.status(202).json({ success: true });
   } catch (error) {
     response.status(500).json({ success: false });
