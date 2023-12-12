@@ -6,7 +6,9 @@ const Expenses = require("./models/expenses");
 const User = require("./models/user");
 const homePageRouter = require("./routes/homePage");
 const userRouter = require("./routes/user");
+const Orders = require('./models/orders');
 const expenseRouter = require("./routes/expenses");
+const purchaseRouter=require("./routes/purchase");
 const app = express();
 
 app.use(cors());
@@ -17,8 +19,12 @@ app.use(express.static(path.join(__dirname, "public")));
 User.hasMany(Expenses);
 Expenses.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 
+User.hasMany(Orders);
+Orders.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+
 app.use("", homePageRouter);
 app.use("/user", userRouter);
+app.use('/purchase',purchaseRouter);
 app.use("/expenses", expenseRouter);
 
 async function runServer() {

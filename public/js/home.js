@@ -39,7 +39,7 @@ signupForm.addEventListener("click", async (e) => {
     userEmail: inputEmail,
     userPassword: inputPassword,
   };
-  const isValidUser = await axios.post(
+  await axios.post(
     "http://localhost:3000/user/signup",
     userObj
   );

@@ -4,6 +4,7 @@ const inputCategory = document.getElementById("category");
 const addBtn = document.getElementById("addBtn");
 const listOfItems = document.getElementById("listOfItems");
 const tokenData = JSON.parse(localStorage.getItem("token"));
+const rzrpBtn = document.getElementById("rzpBtn");
 
 const { token, email } = tokenData;
 const authenticatedAxios = axios.create({
@@ -39,7 +40,7 @@ const saveData = async (amount, description, category) => {
     userid: tokenData.name,
   };
   createElement(myObj);
-  const response = await authenticatedAxios.post(
+  await authenticatedAxios.post(
     `http://localhost:3000/expenses/addExpense`,
     myObj
   );
@@ -62,6 +63,7 @@ const createElement = (element) => {
   listOfItems.appendChild(li);
   deleteElement(deleteBtn, element, li);
 };
+
 const deleteElement = (deleteBtn, user, li) => {
   deleteBtn.onclick = () => {
     let userId = user.id;
@@ -78,6 +80,7 @@ const deleteData = (expenseId) => {
     `http://localhost:3000/expenses/delete/${expenseId}`
   );
 };
+
 const getAllExpenses = async () => {
   const response = await authenticatedAxios.get(
     `http://localhost:3000/expenses/getAllExpenses`
@@ -86,6 +89,39 @@ const getAllExpenses = async () => {
     createElement(response.data[i]);
   }
 };
+
+rzrpBtn.addEventListener("click", async function (e) {
+  e.preventDefault();
+
+  const response = await authenticatedAxios.get(
+    "http://localhost:3000/purchase/premiummembership"
+  );
+  const { key_id, orderid } = response.data;
+
+  var options = {
+    key: key_id,
+    order_id: orderid,
+
+    handler: async function (response) {
+      await authenticatedAxios.put(
+        "http://localhost:3000/purchase/updatetransactionstatus",
+        {
+          order_id: response.razorpay_order_id,
+          payment_id: response.razorpay_payment_id,
+        }
+      );
+      alert(`you are a premium user now`);
+    },
+  };
+  var rzp1 = new Razorpay(options);
+  rzp1.open();
+  e.preventDefault();
+  rzp1.on("payment.failed", function (response) {
+    console.log(response);
+    alert("Something went wrong Transaction failed");
+  });
+});
+
 function clear() {
   amount.value = "";
   description.value = "";
