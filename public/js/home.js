@@ -16,15 +16,14 @@ loginForm.addEventListener("click", async function (e) {
   );
   console.log(isValidUser);
   if (isValidUser.status == 200) {
+    console.log(isValidUser);
     e.preventDefault();
     localStorage.setItem(
       "token",
       JSON.stringify({
         name: isValidUser.data.user.email,
         token: isValidUser.data.token,
-        premiumUser: isValidUser.data.premiumUser,
-
-      })
+     })
     );
     window.location.href = `http://localhost:3000/user/dashboard`;
   }

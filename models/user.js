@@ -11,9 +11,18 @@ const User = sequelize.define("User", {
     allowNull: false,
     unique: true,
   },
+  totalexpenses:{
+    type:Sequelize.FLOAT(),
+    defaultValue:0.0 ,
+},
+ispremiumuser:{
+    type: Sequelize.BOOLEAN,
+    defaultValue:false,
+},
   password: {
     type: Sequelize.TEXT,
     allowNull: false,
   },
+
 });
 module.exports = User;

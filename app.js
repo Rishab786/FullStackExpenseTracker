@@ -9,6 +9,7 @@ const userRouter = require("./routes/user");
 const Orders = require('./models/orders');
 const expenseRouter = require("./routes/expenses");
 const purchaseRouter=require("./routes/purchase");
+const premiumRouter = require('./routes/premium');
 const app = express();
 
 app.use(cors());
@@ -23,9 +24,13 @@ User.hasMany(Orders);
 Orders.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
 
 app.use("", homePageRouter);
+
 app.use("/user", userRouter);
 app.use('/purchase',purchaseRouter);
+app.use('/premium',premiumRouter);
 app.use("/expenses", expenseRouter);
+
+//app.use("/premium",premiumRouter);
 
 async function runServer() {
   try {

@@ -2,11 +2,32 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-const secretKey = "rishab@5$";
+const secretKey = "";
 
 exports.getUserDashboard = (req, res, next) => {
   res.sendFile(path.join(__dirname, "..", "views", "addExpense.html"));
 };
+exports.getUserStatus = async (req,res,next)=>{
+    
+ const userId = req.headers.userid;
+  try {
+    const user=await User.findAll({
+         attributes: ['ispremiumuser'],
+        where: {
+            email:userId
+          }
+      });
+     
+    if (user[0].ispremiumuser) {
+      res.status(200).send("success");
+    } else {
+      res.status(401).send("failed");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+}
 
 exports.signupAuthentication = async (request, response, next) => {
   const { userName, userEmail, userPassword } = request.body;
@@ -36,6 +57,7 @@ exports.loginAuthentication = async (req, res, next) => {
   try {
     const { userEmail, userPassword } = req.body;
     const user = await User.findAll({
+       
       where: {
         email: userEmail,
       },
@@ -48,10 +70,11 @@ exports.loginAuthentication = async (req, res, next) => {
         user[0].password
       );
       if (isPasswordValid) {
+        const v=user[0];
         const token = jwt.sign({ userId: user[0].email}, secretKey, {
           expiresIn: "1h",
         });
-        res.status(200).json({ token: token, user: user[0],premiumUser:false  });
+        res.status(200).json({ token: token, user: user[0]});
       } else {
         res.status(401).send("incorrect password");
       }

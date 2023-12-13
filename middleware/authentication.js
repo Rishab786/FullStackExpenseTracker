@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const secretKey = "rishab@5$";
+const secretKey = "";
 
 exports.authorization = async (request, response, next) => {
   try {
