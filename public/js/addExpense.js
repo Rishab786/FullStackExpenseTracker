@@ -133,12 +133,16 @@ const isPremiumUser = async () => {
 
   if (currentuser.status == 200) {
     const h4 = document.createElement("h4");
-    const btn = document.createElement("button");
+    const leaderBoardBtn = document.createElement("button");
     h4.appendChild(document.createTextNode("You are a premium User"));
-    btn.appendChild(document.createTextNode("Show LeaderBoard"));
-    btn.setAttribute("onclick", "showLeaderBoard()");
+    leaderBoardBtn.appendChild(document.createTextNode("Show LeaderBoard"));
+    leaderBoardBtn.setAttribute("onclick", "showLeaderBoard()");
     container.appendChild(h4);
-    container.appendChild(btn);
+    container.appendChild(leaderBoardBtn);
+    const downloadBtn = document.createElement("button");
+    downloadBtn.appendChild(document.createTextNode("Download Expenses"));
+    container.appendChild(downloadBtn);
+    downloadBtn.setAttribute("onclick", "downloadExpenses()");
     rzrpBtn.remove();
   } else {
     console.log("u are not premium user");
@@ -159,6 +163,10 @@ const showLeaderBoard = async () => {
     leaderBoardList.appendChild(li);
   }
 };
+
+const downloadExpenses= async()=>{
+    
+}
 
 const clear = () => {
   amount.value = "";
