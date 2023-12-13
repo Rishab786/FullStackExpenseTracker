@@ -1,6 +1,6 @@
 const resetButton =document.getElementById('resetBtn');
 const user =document.getElementById('email');
-resetButton.addEventListener("click", async function (e) {
+forgotButton.addEventListener("click", async function (e) {
     e.preventDefault();
     const userEmail=user.value;
     const userObj={

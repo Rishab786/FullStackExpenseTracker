@@ -1,15 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./utils/database");
+
 const path = require("path");
 const Expenses = require("./models/expenses");
 const User = require("./models/user");
+const Orders = require('./models/orders');
+const Forgotpasswords = require('./models/forgotPassword');
+
 const homePageRouter = require("./routes/homePage");
 const userRouter = require("./routes/user");
-const Orders = require('./models/orders');
 const expenseRouter = require("./routes/expenses");
 const purchaseRouter=require("./routes/purchase");
 const premiumRouter = require('./routes/premium');
+const passwordRouter = require('./routes/password');
+
 const app = express();
 
 app.use(cors());
@@ -23,14 +28,15 @@ Expenses.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Orders);
 Orders.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
 
-app.use("", homePageRouter);
+User.hasMany(Forgotpasswords);
+Forgotpasswords.belongsTo(User,{constraints:true,onDelete:'CASCADE'});
 
+app.use("", homePageRouter);
 app.use("/user", userRouter);
 app.use('/purchase',purchaseRouter);
 app.use('/premium',premiumRouter);
 app.use("/expenses", expenseRouter);
-
-//app.use("/premium",premiumRouter);
+app.use("/password",passwordRouter);
 
 async function runServer() {
   try {

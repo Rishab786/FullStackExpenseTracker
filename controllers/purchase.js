@@ -28,7 +28,6 @@ exports.premiummembership = async (request, response, next) => {
 };
 exports.updatetransactionstatus = async (request, response, next) => {
   const userId = request.headers.userid;
-  // console.log(request.headers);
   const { order_id, payment_id } = request.body;
 
   try {
