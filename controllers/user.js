@@ -2,7 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-const secretKey = "";
+const secretKey = "rishab@5$";
 
 exports.getUserDashboard = (req, res, next) => {
   res.sendFile(path.join(__dirname, "..", "views", "addExpense.html"));
