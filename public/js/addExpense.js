@@ -6,6 +6,7 @@ const listOfItems = document.getElementById("listOfItems");
 const tokenData = JSON.parse(localStorage.getItem("token"));
 const rzrpBtn = document.getElementById("rzpBtn");
 const container = document.getElementById("root");
+const leaderBoardList= document.getElementById("leaderBoard");
 
 const authenticatedAxios = axios.create({
   headers: {
@@ -148,7 +149,19 @@ const showLeaderBoard = async () => {
   const leaderBoard = await authenticatedAxios.get(
     "http://localhost:3000/premium/leaderboard"
   );
-  console.log(leaderBoard);
+  const data=leaderBoard.data;
+  console.log(data);
+  for(let i=0;i<data.length;i++)
+  {
+    const totalExpense = data[i].totalExpenses;
+    
+  const userName = data[i].name;
+  const userId = data[i].email;
+  const li = document.createElement("li");
+  li.innerText = `${userId}     ${userName}     ${totalExpense} `;
+  leaderBoardList.appendChild(li);
+
+  }
 };
 
 const clear = () => {

@@ -50,12 +50,13 @@ exports.deletebyId = async (request, response, next) => {
   try {
     const ID = request.params.expenseId;
     const userId = request.user._previousDataValues.email;
-    const currentExpenseAmount = await Expenses.findAll({
+    const currentExpense = await Expenses.findAll({
       attributes: ["amount"],
       where: {
         id: ID,
       },
     });
+    const  currentExpenseAmount=currentExpense[0].amount;
     const result = await Expenses.destroy({
       where: { id: ID, userid: userId },
     });
@@ -69,15 +70,15 @@ exports.deletebyId = async (request, response, next) => {
         },
       });
 
-      const updatedTotalExpense =
-        Number(totalExpenses[0].totalexpenses) -
-        Number(currentExpenseAmount[0].amount);
+      const updatedTotalExpense =totalExpenses[0].totalexpenses-currentExpenseAmount;
+        
+                                 
 
       await User.update(
         { totalexpenses: updatedTotalExpense },
         {
           where: {
-            email: ID,
+            email: userId,
           },
         }
       );
