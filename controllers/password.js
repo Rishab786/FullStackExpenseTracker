@@ -1,10 +1,12 @@
 const User = require("../models/user");
+const dotenv = require('dotenv');
+dotenv.config();
 const ForgotPasswords = require('../models/forgotPassword');
 const bcrypt = require('bcrypt');
 const Sib = require("sib-api-v3-sdk");
 
 const client = Sib.ApiClient.instance;
-client.authentications["api-key"].apiKey = "";
+client.authentications["api-key"].apiKey =process.env.SIB_API_KEY;
 const tranEmailApi = new Sib.TransactionalEmailsApi();
 
 //SENDING RESET PASSWORD LINK TO THEIR EMAIL

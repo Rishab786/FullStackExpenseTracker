@@ -1,8 +1,11 @@
 const Order = require("../models/orders");
 const User = require("../models/user");
+const dotenv = require('dotenv');
+dotenv.config();
 const Razorpay = require("razorpay");
-const key_id = "";
-const key_secret = "";
+
+const key_id = process.env.RAZORPAY_KEY_ID;
+const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
 exports.premiummembership = async (request, response, next) => {
   try {

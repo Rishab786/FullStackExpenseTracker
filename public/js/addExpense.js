@@ -14,7 +14,7 @@ const authenticatedAxios = axios.create({
     userId: `${tokenData.name}`,
   },
 });
-console.log(tokenData);
+
 addBtn.addEventListener("click", function (e) {
   e.preventDefault();
   const amount = inputAmount.value;
@@ -166,6 +166,15 @@ const showLeaderBoard = async () => {
 
 const downloadExpenses= async()=>{
     
+    try {
+        let response = await authenticatedAxios.get('http://localhost:3000/premium/download');
+        window.location.href = response.data.URL;
+        
+    } catch (error) {
+        console.log(error);
+        alert(error.response.data.message);
+    }
+
 }
 
 const clear = () => {

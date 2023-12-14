@@ -2,7 +2,9 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-const secretKey = "";
+const dotenv = require('dotenv');
+dotenv.config();
+const secretKey = process.env.SECRET_KEY;
 
 exports.getUserDashboard = (req, res, next) => {
   res.sendFile(path.join(__dirname, "..", "views", "addExpense.html"));
