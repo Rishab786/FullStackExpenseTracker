@@ -44,21 +44,21 @@ exports.addExpenses = async (request, response, next) => {
     console.log(error);
   }
 };
-exports.getAllExpenses = async (request, response, nex) => {
+exports.getAllExpenses = async (request, response, next) => {
   try {
-    const page = Number(request.query.page);
-    const totalItems = await Expenses.count();
+    const page = request.query.page;
     const user = request.user;
-    const limit = 3;
+   const limit = Number(request.query.noitem);
     const offset = (page - 1) * limit;
     const expenses = await user.getExpenses({
-      offset: offset,
-      limit: limit,
+        offset: offset,
+        limit: limit
     });
-    const e = expenses;
     response.status(200).json({
-      expenses: expenses,
-      totalPages: Math.ceil(totalItems / limit),
+        expenses: expenses,
+        totalexpenses: user.totalexpenses,
+        hasMoreExpenses : expenses.length === limit,
+        hasPreviousExpenses : page > 1
     });
   } catch (error) {
     console.log(error);

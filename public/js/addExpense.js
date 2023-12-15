@@ -6,12 +6,12 @@ const tokenData = JSON.parse(localStorage.getItem("token"));
 const rzrpBtn = document.getElementById("rzpBtn");
 const container = document.getElementById("root");
 const leaderBoardList = document.getElementById("leaderBoard");
-let pageIndex = 0;
-const nav = document.getElementById("nav");
-
-const expenseList = document.getElementById("expenseList");
-
+const noOfItemsPerPage = document.getElementById("noiteminpage");
+const prevPageBtn = document.getElementById("prevPage");
+const nextPageBtn = document.getElementById("nextPage");
+const curPageBtn = document.getElementById("currentPage");
 const listOfItems = document.getElementById("listOfExpense");
+const URL = "http://localhost:3000";
 
 const authenticatedAxios = axios.create({
   headers: {
@@ -19,6 +19,15 @@ const authenticatedAxios = axios.create({
     userId: `${tokenData.name}`,
   },
 });
+let currentPage = 0;
+let hasMorePage;
+let hasPreviousPage;
+let noitem = 0;
+let pageIndex = 0;
+
+noOfItemsPerPage.addEventListener("change", selectRows);
+prevPageBtn.addEventListener("click", clickPrevPage);
+nextPageBtn.addEventListener("click", clickNextPage);
 
 addBtn.addEventListener("click", function (e) {
   e.preventDefault();
@@ -38,29 +47,22 @@ addBtn.addEventListener("click", function (e) {
   }
 });
 
-const saveData = async (amount, description, category) => {
+async function saveData(amount, description, category) {
   const myObj = {
     price: amount,
     product: description,
     category: category,
     userid: tokenData.name,
   };
-  createElement(myObj);
 
-  await authenticatedAxios.post(
-    `http://localhost:3000/expenses/addExpense`,
-    myObj
-  );
-};
+  await authenticatedAxios.post(`${URL}/expenses/addExpense`, myObj);
+}
 
 const createElement = (element) => {
-  expenseList.appendChild(listOfItems);
-
   let amount = element.amount;
   if (amount == undefined) {
     amount = element.price;
   }
-
   const description = element.product;
   const category = element.category;
   const li = document.createElement("li");
@@ -73,7 +75,7 @@ const createElement = (element) => {
   deleteElement(deleteBtn, element, li);
 };
 
-const deleteElement = (deleteBtn, user, li) => {
+function deleteElement(deleteBtn, user, li) {
   deleteBtn.onclick = () => {
     let userId = user.id;
     if (confirm("Are You Sure?")) {
@@ -82,57 +84,66 @@ const deleteElement = (deleteBtn, user, li) => {
       deleteData(userId);
     }
   };
-};
+}
 
-const deleteData = (expenseId) => {
-  authenticatedAxios.delete(
-    `http://localhost:3000/expenses/delete/${expenseId}`
-  );
-};
+function deleteData(expenseId) {
+  authenticatedAxios.delete(`${URL}/expenses/delete/${expenseId}`);
+}
 
-const getAllExpenses = async () => {
-  const page = 1;
+function selectRows() {
+  noitem = noiteminpage.value;
+  currentPage = 1;
+  getAllExpenses();
+}
+
+async function getAllExpenses() {
   const response = await authenticatedAxios.get(
-    `http://localhost:3000/expenses/getAllExpenses/?page=${page}`
+    `${URL}/expenses/getAllExpenses/?page=${currentPage}&noitem=${noitem}`
   );
-  
+  hasMoreExpenses = response.data.hasMoreExpenses;
+  hasPreviousExpenses = response.data.hasPreviousExpenses;
+  curPageBtn.innerText = currentPage;
   expenseData = response.data.expenses;
-  const totalPage = response.data.totalPages;
-  showPagination(totalPage);
-  for (let i = 0; i < expenseData.length; i++) {
-    createElement(expenseData[i]);
-  }
-};
-const getExpenses = async (page) => {
-  const response = await authenticatedAxios.get(
-    `http://localhost:3000/expenses/getAllExpenses/?page=${page}`
-  );
+  showOutput(expenseData);
+}
 
-  expenseData = response.data.expenses;
-  showPagination(response.data);
-  for (let i = 0; i < expenseData.length; i++) {
-    createElement(expenseData[i]);
-  }
-};
-
-const showPagination = (totalPage) => {
-  for (let i = 0; i < totalPage / 3; i++) {
-    const span = document.createElement("span");
-    span.innerHTML = i + 1 + " ";
-    span.addEventListener("click", (e) => {
-      pageIndex = e.target.innerHTML;
-    getExpenses(pageIndex);
+function showOutput(data) {
+  listOfItems.innerHTML = "";
+  if (data.length > 0) {
+    data.forEach((element, index) => {
+      const li = document.createElement("h5");
+      li.id = element.id;
+      li.innerText = `${(currentPage - 1) * noitem + index + 1} ${
+        element.amount
+      }  ${element.product}  ${element.category} `;
+      const deleteBtn = document.createElement("button");
+      deleteBtn.appendChild(document.createTextNode("Delete"));
+      li.append(deleteBtn);
+      deleteElement(deleteBtn, element, li);
+      listOfItems.appendChild(li);
     });
-
-    nav.append(span);
   }
-};
+}
+
+function clickPrevPage(e) {
+  if (hasPreviousExpenses) {
+    currentPage--;
+    getAllExpenses();
+  }
+}
+
+function clickNextPage() {
+  if (hasMoreExpenses) {
+    currentPage++;
+    getAllExpenses();
+  }
+}
 
 rzrpBtn.addEventListener("click", async function (e) {
   e.preventDefault();
 
   const response = await authenticatedAxios.get(
-    "http://localhost:3000/purchase/premiummembership"
+    `${URL}/purchase/premiummembership`
   );
   const { key_id, orderid } = response.data;
 
@@ -141,13 +152,10 @@ rzrpBtn.addEventListener("click", async function (e) {
     order_id: orderid,
 
     handler: async function (response) {
-      await authenticatedAxios.put(
-        "http://localhost:3000/purchase/updatetransactionstatus",
-        {
-          order_id: response.razorpay_order_id,
-          payment_id: response.razorpay_payment_id,
-        }
-      );
+      await authenticatedAxios.put(`${URL}/purchase/updatetransactionstatus`, {
+        order_id: response.razorpay_order_id,
+        payment_id: response.razorpay_payment_id,
+      });
       rzrpBtn.remove();
 
       alert(`you are a premium user now`);
@@ -162,10 +170,9 @@ rzrpBtn.addEventListener("click", async function (e) {
     alert("Something went wrong Transaction failed");
   });
 });
-const isPremiumUser = async () => {
-  const currentuser = await authenticatedAxios.get(
-    "http://localhost:3000/user/userstatus"
-  );
+
+async function isPremiumUser () {
+  const currentuser = await authenticatedAxios.get(`${URL}/user/userstatus`);
 
   if (currentuser.status == 200) {
     const h4 = document.createElement("h4");
@@ -184,9 +191,10 @@ const isPremiumUser = async () => {
     console.log("u are not premium user");
   }
 };
-const showLeaderBoard = async () => {
+
+async function showLeaderBoard() {
   const leaderBoard = await authenticatedAxios.get(
-    "http://localhost:3000/premium/leaderboard"
+    `${URL}/premium/leaderboard`
   );
   const data = leaderBoard.data;
   for (let i = 0; i < data.length; i++) {
@@ -198,19 +206,17 @@ const showLeaderBoard = async () => {
     li.innerText = `${userId}     ${userName}     ${totalExpense} `;
     leaderBoardList.appendChild(li);
   }
-};
+}
 
-const downloadExpenses = async () => {
+async function downloadExpenses() {
   try {
-    let response = await authenticatedAxios.get(
-      "http://localhost:3000/premium/download"
-    );
+    let response = await authenticatedAxios.get(`${URL}/premium/download`);
     window.location.href = response.data.URL;
   } catch (error) {
     console.log(error);
     alert(error.response.data.message);
   }
-};
+}
 
 const clear = () => {
   amount.value = "";
@@ -219,4 +225,3 @@ const clear = () => {
 };
 
 isPremiumUser();
-getAllExpenses();
