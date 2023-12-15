@@ -1,26 +1,32 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./utils/database");
-const dotenv = require('dotenv');
+const hemet = require("helmet");
+const dotenv = require("dotenv");
+const morgan = require("morgan");
 dotenv.config();
 const PORT = process.env.PORT;
 
 const path = require("path");
 const Expenses = require("./models/expenses");
 const User = require("./models/user");
-const Orders = require('./models/orders');
-const Forgotpasswords = require('./models/forgotPassword');
-const Downloads = require('./models/downloads');
+const Orders = require("./models/orders");
+const Forgotpasswords = require("./models/forgotPassword");
+const Downloads = require("./models/downloads");
 
 const homePageRouter = require("./routes/homePage");
 const userRouter = require("./routes/user");
 const expenseRouter = require("./routes/expenses");
-const purchaseRouter=require("./routes/purchase");
-const premiumRouter = require('./routes/premium');
-const passwordRouter = require('./routes/password');
+const purchaseRouter = require("./routes/purchase");
+const premiumRouter = require("./routes/premium");
+const passwordRouter = require("./routes/password");
 
+const accessLogStream = fs.createWriteStream("./access.log", { flags: "a" });
 const app = express();
 
+app.use(hemet());
+app.use(morgan("combined", { stream: accessLogStream }));
+app.use(morgan);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,20 +36,20 @@ User.hasMany(Expenses);
 Expenses.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 
 User.hasMany(Orders);
-Orders.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+Orders.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 
 User.hasMany(Forgotpasswords);
-Forgotpasswords.belongsTo(User,{constraints:true,onDelete:'CASCADE'});
+Forgotpasswords.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 
 User.hasMany(Downloads);
-Downloads.belongsTo(User,{constraints:true,onDelete:'CASCADE'});
+Downloads.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 
 app.use("", homePageRouter);
 app.use("/user", userRouter);
-app.use('/purchase',purchaseRouter);
-app.use('/premium',premiumRouter);
+app.use("/purchase", purchaseRouter);
+app.use("/premium", premiumRouter);
 app.use("/expenses", expenseRouter);
-app.use("/password",passwordRouter);
+app.use("/password", passwordRouter);
 
 async function runServer() {
   try {
