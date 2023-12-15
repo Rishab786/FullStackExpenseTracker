@@ -46,10 +46,20 @@ exports.addExpenses = async (request, response, next) => {
 };
 exports.getAllExpenses = async (request, response, nex) => {
   try {
+    const page = Number(request.query.page);
+    const totalItems = await Expenses.count();
     const user = request.user;
-    const expenses = await user.getExpenses({ include: ["User"] });
-
-    response.status(200).json(expenses);
+    const limit = 3;
+    const offset = (page - 1) * limit;
+    const expenses = await user.getExpenses({
+      offset: offset,
+      limit: limit,
+    });
+    const e = expenses;
+    response.status(200).json({
+      expenses: expenses,
+      totalPages: Math.ceil(totalItems / limit),
+    });
   } catch (error) {
     console.log(error);
     return response

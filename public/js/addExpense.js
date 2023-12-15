@@ -2,11 +2,16 @@ const inputAmount = document.getElementById("amount");
 const inputDescription = document.getElementById("description");
 const inputCategory = document.getElementById("category");
 const addBtn = document.getElementById("addBtn");
-const listOfItems = document.getElementById("listOfItems");
 const tokenData = JSON.parse(localStorage.getItem("token"));
 const rzrpBtn = document.getElementById("rzpBtn");
 const container = document.getElementById("root");
 const leaderBoardList = document.getElementById("leaderBoard");
+let pageIndex = 0;
+const nav = document.getElementById("nav");
+
+const expenseList = document.getElementById("expenseList");
+
+const listOfItems = document.getElementById("listOfExpense");
 
 const authenticatedAxios = axios.create({
   headers: {
@@ -49,6 +54,8 @@ const saveData = async (amount, description, category) => {
 };
 
 const createElement = (element) => {
+  expenseList.appendChild(listOfItems);
+
   let amount = element.amount;
   if (amount == undefined) {
     amount = element.price;
@@ -84,11 +91,40 @@ const deleteData = (expenseId) => {
 };
 
 const getAllExpenses = async () => {
+  const page = 1;
   const response = await authenticatedAxios.get(
-    `http://localhost:3000/expenses/getAllExpenses`
+    `http://localhost:3000/expenses/getAllExpenses/?page=${page}`
   );
-  for (let i = 0; i < response.data.length; i++) {
-    createElement(response.data[i]);
+  
+  expenseData = response.data.expenses;
+  const totalPage = response.data.totalPages;
+  showPagination(totalPage);
+  for (let i = 0; i < expenseData.length; i++) {
+    createElement(expenseData[i]);
+  }
+};
+const getExpenses = async (page) => {
+  const response = await authenticatedAxios.get(
+    `http://localhost:3000/expenses/getAllExpenses/?page=${page}`
+  );
+
+  expenseData = response.data.expenses;
+  showPagination(response.data);
+  for (let i = 0; i < expenseData.length; i++) {
+    createElement(expenseData[i]);
+  }
+};
+
+const showPagination = (totalPage) => {
+  for (let i = 0; i < totalPage / 3; i++) {
+    const span = document.createElement("span");
+    span.innerHTML = i + 1 + " ";
+    span.addEventListener("click", (e) => {
+      pageIndex = e.target.innerHTML;
+    getExpenses(pageIndex);
+    });
+
+    nav.append(span);
   }
 };
 
@@ -164,23 +200,23 @@ const showLeaderBoard = async () => {
   }
 };
 
-const downloadExpenses= async()=>{
-    
-    try {
-        let response = await authenticatedAxios.get('http://localhost:3000/premium/download');
-        window.location.href = response.data.URL;
-        
-    } catch (error) {
-        console.log(error);
-        alert(error.response.data.message);
-    }
-
-}
+const downloadExpenses = async () => {
+  try {
+    let response = await authenticatedAxios.get(
+      "http://localhost:3000/premium/download"
+    );
+    window.location.href = response.data.URL;
+  } catch (error) {
+    console.log(error);
+    alert(error.response.data.message);
+  }
+};
 
 const clear = () => {
   amount.value = "";
   description.value = "";
   category.value = "";
 };
+
 isPremiumUser();
 getAllExpenses();
