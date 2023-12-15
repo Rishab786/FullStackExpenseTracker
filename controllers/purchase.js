@@ -1,12 +1,13 @@
 const Order = require("../models/orders");
 const User = require("../models/user");
 const dotenv = require('dotenv');
-dotenv.config();
 const Razorpay = require("razorpay");
+dotenv.config();
 
 const key_id = process.env.RAZORPAY_KEY_ID;
 const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
+//PAYMENT GATEWAY TO BUY PREMIUM MEMBERSHIP
 exports.premiummembership = async (request, response, next) => {
   try {
     const rzpintance = new Razorpay({
@@ -29,6 +30,8 @@ exports.premiummembership = async (request, response, next) => {
     console.log(error);
   }
 };
+
+//UPDATING TRANSACTION STATUS 
 exports.updatetransactionstatus = async (request, response, next) => {
   const userId = request.headers.userid;
   const { order_id, payment_id } = request.body;

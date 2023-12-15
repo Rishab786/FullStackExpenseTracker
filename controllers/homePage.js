@@ -1,3 +1,4 @@
-exports.getHomePage = (req, res, next) => {
-  res.sendFile("home.html", { root: "views" });
+//SEDING DEFAULT OR LOGIN PAGE
+exports.getHomePage = (request, response, next) => {
+  response.sendFile("home.html", { root: "views" });
 };

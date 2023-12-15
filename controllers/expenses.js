@@ -1,6 +1,8 @@
 const Expenses = require("../models/expenses");
 const sequelize = require("../utils/database");
 const User = require("../models/user");
+
+//Saving NEW Expenses
 exports.addExpenses = async (request, response, next) => {
   const transaction = await sequelize.transaction();
   try {
@@ -44,21 +46,23 @@ exports.addExpenses = async (request, response, next) => {
     console.log(error);
   }
 };
+
+//GETTING ALL THE EXPENSES
 exports.getAllExpenses = async (request, response, next) => {
   try {
     const page = request.query.page;
     const user = request.user;
-   const limit = Number(request.query.noitem);
+    const limit = Number(request.query.noitem);
     const offset = (page - 1) * limit;
     const expenses = await user.getExpenses({
-        offset: offset,
-        limit: limit
+      offset: offset,
+      limit: limit,
     });
     response.status(200).json({
-        expenses: expenses,
-        totalexpenses: user.totalexpenses,
-        hasMoreExpenses : expenses.length === limit,
-        hasPreviousExpenses : page > 1
+      expenses: expenses,
+      totalexpenses: user.totalexpenses,
+      hasMoreExpenses: expenses.length === limit,
+      hasPreviousExpenses: page > 1,
     });
   } catch (error) {
     console.log(error);
@@ -67,6 +71,8 @@ exports.getAllExpenses = async (request, response, next) => {
       .json({ message: "Unauthorized relogin required" });
   }
 };
+
+//DELETE EXPENSES
 exports.deletebyId = async (request, response, next) => {
   const transaction = await sequelize.transaction();
   try {

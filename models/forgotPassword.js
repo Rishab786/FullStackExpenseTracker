@@ -1,17 +1,17 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../utils/database');
+const Sequelize = require("sequelize");
+const sequelize = require("../utils/database");
 
-const ForgotPasswords = sequelize.define('Forgotpasswords', {
+const ForgotPasswords = sequelize.define("Forgotpasswords", {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
     allowNull: false,
-    defaultValue: Sequelize.UUIDV4, 
+    defaultValue: Sequelize.UUIDV4,
   },
   isactive: {
-    type: Sequelize.BOOLEAN, 
+    type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: true, 
+    defaultValue: true,
   },
 });
 

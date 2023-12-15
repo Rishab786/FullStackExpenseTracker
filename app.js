@@ -4,6 +4,8 @@ const sequelize = require("./utils/database");
 const hemet = require("helmet");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const fs = require("fs");
+
 dotenv.config();
 const PORT = process.env.PORT;
 
@@ -15,6 +17,7 @@ const Forgotpasswords = require("./models/forgotPassword");
 const Downloads = require("./models/downloads");
 
 const homePageRouter = require("./routes/homePage");
+const errorPageRouter = require("./routes/errorPage");
 const userRouter = require("./routes/user");
 const expenseRouter = require("./routes/expenses");
 const purchaseRouter = require("./routes/purchase");
@@ -24,9 +27,8 @@ const passwordRouter = require("./routes/password");
 const accessLogStream = fs.createWriteStream("./access.log", { flags: "a" });
 const app = express();
 
-app.use(hemet());
-app.use(morgan("combined", { stream: accessLogStream }));
-app.use(morgan);
+// app.use(hemet());
+// app.use(morgan("combined", { stream: accessLogStream }));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -50,6 +52,7 @@ app.use("/purchase", purchaseRouter);
 app.use("/premium", premiumRouter);
 app.use("/expenses", expenseRouter);
 app.use("/password", passwordRouter);
+app.use("/*" , errorPageRouter);
 
 async function runServer() {
   try {

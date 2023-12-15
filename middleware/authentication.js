@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const secretKey = process.env.SECRET_KEY;
 
+// AUTHENTICATING USER BY VERIFYING JWT TOKEN
 exports.authorization = async (request, response, next) => {
   try {
     const token = request.headers.authorization;

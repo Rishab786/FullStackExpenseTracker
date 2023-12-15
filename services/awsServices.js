@@ -1,7 +1,9 @@
 
 const dotenv = require('dotenv');
-dotenv.config();
 const AWS = require('aws-sdk');
+dotenv.config();
+
+//SAVING EXPENSE FILES TO AWS S3
 exports.uploadToS3 = async (data, filename) => {
     try {
         const bucketName = process.env.BUCKET_NAME;
