@@ -26,6 +26,7 @@ loginForm.addEventListener("click", async function (e) {
       window.location.href = `${URL}/user/dashboard`;
     }
   } catch (error) {
+    window.location.href = `/html/incorrectPassword.html`;
     console.log(error);
   }
 });

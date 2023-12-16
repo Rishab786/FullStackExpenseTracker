@@ -5,12 +5,10 @@ const addBtn = document.getElementById("addBtn");
 const tokenData = JSON.parse(localStorage.getItem("token"));
 const rzrpBtn = document.getElementById("rzpBtn");
 const container = document.getElementById("root");
-const leaderBoardList = document.getElementById("leaderBoard");
+const leaderBoardTable = document.getElementById("leaderBoardTable");
 const noOfItemsPerPage = document.getElementById("noiteminpage");
-const prevPageBtn = document.getElementById("prevPage");
-const nextPageBtn = document.getElementById("nextPage");
-const curPageBtn = document.getElementById("currentPage");
-const listOfItems = document.getElementById("listOfExpense");
+const expenseTable = document.getElementById("expenseTable");
+const tableParentElement = document.getElementById("tableParentElement");
 const URL = "http://localhost:3000";
 
 const authenticatedAxios = axios.create({
@@ -26,8 +24,6 @@ let noitem = 0;
 let pageIndex = 0;
 
 noOfItemsPerPage.addEventListener("change", selectRows);
-prevPageBtn.addEventListener("click", clickPrevPage);
-nextPageBtn.addEventListener("click", clickNextPage);
 
 //CREATE NEW EXPENSE
 addBtn.addEventListener("click", function (e) {
@@ -44,6 +40,7 @@ addBtn.addEventListener("click", function (e) {
     alert("please select a category");
   } else {
     saveData(amount, description, category);
+
     clear();
   }
 });
@@ -58,23 +55,17 @@ async function saveData(amount, description, category) {
   };
 
   await authenticatedAxios.post(`${URL}/expenses/addExpense`, myObj);
-}
-
-// DELETE EXPENSE FROM FRONTEND
-function deleteElement(deleteBtn, user, li) {
-  deleteBtn.onclick = () => {
-    let userId = user.id;
-    if (confirm("Are You Sure?")) {
-      let element = document.getElementById(`${userId}`);
-      element.remove();
-      deleteData(userId);
-    }
-  };
+  getAllExpenses();
 }
 
 //DELETE EXPENSE FROM DATABASE
-function deleteData(expenseId) {
-  authenticatedAxios.delete(`${URL}/expenses/delete/${expenseId}`);
+async function deleteData(expenseId) {
+  if (confirm("Are You Sure?")) {
+    let element = document.getElementById(`${expenseId}`);
+    element.remove();
+    await authenticatedAxios.delete(`${URL}/expenses/delete/${expenseId}`);
+    getAllExpenses();
+  }
 }
 
 //GETTING ALL EXPENSES OF A USER
@@ -84,28 +75,39 @@ async function getAllExpenses() {
   );
   hasMoreExpenses = response.data.hasMoreExpenses;
   hasPreviousExpenses = response.data.hasPreviousExpenses;
-  curPageBtn.innerText = currentPage;
-  expenseData = response.data.expenses;
-  createElement(expenseData);
+  const expenseData = response.data.expenses;
+  if (expenseData.length > 0) createElement(expenseData);
 }
 
-//SHOWING EXPENSE DATA
+//  SHOWING EXPENSE DATA
 function createElement(data) {
-  listOfItems.innerHTML = "";
-  if (data.length > 0) {
-    data.forEach((element, index) => {
-      const li = document.createElement("h5");
-      li.id = element.id;
-      li.innerText = `${(currentPage - 1) * noitem + index + 1})  ${
-        element.amount
-      }  ${element.product}  ${element.category} `;
-      const deleteBtn = document.createElement("button");
-      deleteBtn.appendChild(document.createTextNode("Delete"));
-      li.append(deleteBtn);
-      deleteElement(deleteBtn, element, li);
-      listOfItems.appendChild(li);
-    });
-  }
+  expenseTable.innerHTML = "";
+
+  expenseTable.innerHTML = `
+    <tr>
+    <th>Amout</th>
+    <th>Description</th>
+    <th>Category</th>
+  </tr>
+    `;
+  data.forEach((element, index) => {
+    const html = `
+        <tr id=${element.id}>
+    <td>${element.amount}</td>
+    <td>${element.product} </td>
+    <td> ${element.category}</td>
+     <td><button onclick="deleteData(${element.id})">Delete</button></td>
+    </tr>`;
+    expenseTable.innerHTML += html;
+  });
+  const footerHtml = `<div id="footer">
+    <button id="prevPage" onclick="clickPrevPage()">Previous</button>
+    <button id="currentPage">${currentPage}</button>
+    <button id="nextPage" onclick="clickNextPage()">Next</button>
+    </div>
+
+    `;
+  expenseTable.innerHTML += footerHtml;
 }
 
 //PAGINATION LOGIC
@@ -193,15 +195,24 @@ async function showLeaderBoard() {
   const leaderBoard = await authenticatedAxios.get(
     `${URL}/premium/leaderboard`
   );
+  leaderBoardTable.innerHTML = `
+    <h4 id="footer"> LEADERBOARD </h4>
+    <tr>
+    <th>Name</th>
+    <th>Email Address</th>
+    <th>Total Expenses</th>
+  </tr>
+    `;
   const data = leaderBoard.data;
   for (let i = 0; i < data.length; i++) {
-    const totalExpense = data[i].totalExpenses;
-
-    const userName = data[i].name;
-    const userId = data[i].email;
-    const li = document.createElement("li");
-    li.innerText = `${userId}  ${userName}  ${totalExpense} `;
-    leaderBoardList.appendChild(li);
+    const html = `
+        <tr>
+    <td>${data[i].name}</td>
+    <td>${data[i].email} </td>
+    <td> ${data[i].totalExpenses}</td>
+     
+    </tr>`;
+    leaderBoardTable.innerHTML += html;
   }
 }
 

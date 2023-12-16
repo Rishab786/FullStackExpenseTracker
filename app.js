@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./utils/database");
-const hemet = require("helmet");
+const helmet = require("helmet");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const fs = require("fs");
@@ -27,8 +27,8 @@ const passwordRouter = require("./routes/password");
 const accessLogStream = fs.createWriteStream("./access.log", { flags: "a" });
 const app = express();
 
-// app.use(hemet());
-// app.use(morgan("combined", { stream: accessLogStream }));
+app.use(helmet());
+app.use(morgan("combined", { stream: accessLogStream }));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -52,7 +52,7 @@ app.use("/purchase", purchaseRouter);
 app.use("/premium", premiumRouter);
 app.use("/expenses", expenseRouter);
 app.use("/password", passwordRouter);
-app.use("/*" , errorPageRouter);
+app.use("/*", errorPageRouter);
 
 async function runServer() {
   try {
